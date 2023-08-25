@@ -46,11 +46,23 @@ body { background:#333; user-select: none;  font-size: 20px; }
   margin: 15px 0 0 25px;
   white-space:nowrap;
 }
+#LoadoutCloseButton {
+  position:absolute;
+  top: 3px;
+  right: 3px;
+  width: 10px
+  height: 10px;
+  padding: 2px;
+  font-size: 10px;
+  background:#faa;
+  border: 1px solid #666;
+}
 #LoadoutNextButton {
   position:absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 30px;
+  top: 18px;
+  right: 24px;
+  width: 25px;
+  font-size: 20px;
   background:#bea47a;
   border: 1px solid #666;
   padding:0 4px;
@@ -202,6 +214,10 @@ function get(id) { return document.getElementById(id); }
 
 function showLoadout() {
   show_loadout = true;
+  render();
+}
+function closeLoadout() {
+  show_loadout = false;
   render();
 }
 
@@ -365,6 +381,7 @@ function render() {
 <div id="VertSepDiv"></div>
 <div id="LoadoutColumnDiv">
   <div id="LoadoutTitleDiv"></div>
+  <button id="LoadoutCloseButton" onclick="closeLoadout()">X</button>
   <button id="LoadoutNextButton" onclick="nextLoadout()">&gt;</button>
   <div id="LoadoutItemDiv"></div>
   <button id="AddLoadoutButton" onclick="addLoadout()">Add <span id="LoadoutCostAmountSpan"></span></button>
