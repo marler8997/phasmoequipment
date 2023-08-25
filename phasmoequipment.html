@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html><head>
+<style>
+*{margin:0;padding:0}
+body { background:#333; user-select: none;  font-size: 20px; }
+#EquipmentDiv {
+  position:relative;
+  width: 640px;
+  height: 500px;
+  background:#eaeaea;
+}
+#VertSepDiv {
+    position:absolute;
+    top:10px;
+    left:410px;
+    width:1px;
+    height:480px;
+    background:#ccc;
+}
+
+#EquipmentItemDiv {
+  position:absolute;
+  top: 60px;
+  line-height: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#LoadoutColumnDiv {
+  position:absolute;
+  top:0;
+  left:410px;
+  width:230px;
+  height:500px;
+}
+#ShowLoadoutButton {
+  position:absolute;
+  top: 20px;
+  left:420px;
+  width: 210px;
+  font-size: 20px;
+  background:#bea47a;
+}
+#LoadoutTitleDiv {
+  font-size:30px;
+  margin: 15px 0 0 25px;
+  white-space:nowrap;
+}
+#LoadoutNextButton {
+  position:absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 30px;
+  background:#bea47a;
+  border: 1px solid #666;
+  padding:0 4px;
+}
+#LoadoutItemDiv {
+  position:absolute;
+  top: 60px;
+  left:3px;
+  font-size: 20px;
+  line-height: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#PlayerMoneyAndCostDiv {
+  margin-top: 420px;
+}
+#PlayerMoneyDiv {
+  position:absolute;
+  font-size: 30px;
+}
+#CostDiv {
+  position:absolute;
+  display: inline-block;
+  left: 270px;
+  font-size: 30px;
+}
+.CurrentItemRowDiv {
+  position:relative;
+  border-bottom:1px solid #aaa;
+  width:410px;
+}
+.LoadoutItemRowDiv {
+  border-bottom:1px solid #aaa;
+  width:230px;
+}
+.CurrentItemPipsSpan {
+  position:absolute;
+  left:200px;
+  width: 100px;
+}
+.CurrentRowCostSpan {
+  position:absolute;
+  left:360px;
+}
+.CurrentModifyButtonsSpan {
+  position:absolute;
+  top:-2px;
+  line-height:19px;
+  left: 290px;
+  width: 60px;
+}
+.ModifyButtonSpan {
+  user-select: hidden;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  display:inline-block;
+  width: 15px;
+  margin:0 3px 0 4px;
+  padding: 0 2px;
+  color:#777;
+  text-align:center;
+  background:#bea47a;
+}
+.ModifyButtonSpanDisabled {
+  cursor:default;
+  color:#aaa;
+  background:#eee;
+}
+.ModifyButtonSpanEnabled:hover {
+  border-color: #000;
+  cursor:pointer;
+  font-weight:bold;
+  color:#000;
+}
+.ItemPipSpan { display:inline-block; font-weight:bold; display:inline-block; margin:0 3px }
+
+
+.LoadoutItemPipsSpan {
+  display:inline-block;
+  margin-left:10px;
+  width: 100px;
+}
+.LoadoutModifyButtonsSpan {
+  position:absolute;
+  left: 100px;
+  width: 60px;
+  line-height: 19px;
+}
+.LoadoutRowCostSpan {
+  position:absolute;
+  left:170px;
+}
+#AddLoadoutButton {
+  position:absolute;
+  top: 450px;
+  left:10px;right:10px;
+  font-size: 30px;
+}
+
+.Black { color:#000 }
+.Purple { color:#5D3FD3}
+.Gray { color:#ccc }
+.Red { color:#f00 }
+</style>
+<script>
+function randRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+const items = [
+    {"name": "D.O.T.S. Projector", "free": 1, "max": 2, cost: 65},
+    {"name": "EMF Reader", "free": 1, "max": 2, cost: 45},
+    {"name": "Ghost Writing Book", "free": 1, "max": 2, cost: 40},
+    {"name": "Spirit Box", "free": 1, "max": 2, cost: 50},
+    {"name": "Thermometer", "free": 1, "max": 2, cost: 30},
+    {"name": "UV Light", "free": 1, "max": 2, cost: 20},
+    {"name": "Video Camera", "free": 1, "max": 4, cost: 50},
+    {name: "Crucifix", "free": 0, "max": 2, cost: 30},
+    {name: "Firelight", "free": 0, "max": 4, cost: 15 },
+    {name: "Flashlight", "free": 1, "max": 4, cost: 30 },
+    {name: "Head Gear", "free":0, "max": 4, cost: 60 },
+];
+var player_money = 250;
+var item_states = [];
+for (var i = 0; i < items.length; i++) {
+  item_states.push({ "count": items[i].free })
+}
+var show_loadout = false;
+var current_loadout_index = 0;
+var loadouts = [];
+for (var loadout_index = 0; loadout_index < 3; loadout_index++) {
+  var loadout = [];
+  for (var item_index = 0; item_index < items.length; item_index++) {
+    const item = items[item_index];
+    loadout.push({"count": randRange(0, item.max)});
+    console.log("Loadout " + loadout_index + " " + item.name + " count is " + loadout[item_index].count);
+  }
+  loadouts.push(loadout);
+}
+
+function get(id) { return document.getElementById(id); }
+
+function showLoadout() {
+  show_loadout = true;
+  render();
+}
+
+function nextLoadout() {
+  current_loadout_index += 1;
+  if (current_loadout_index == 3) current_loadout_index = 0;
+  render();
+}
+
+function addLoadout() {
+  var loadout = loadouts[current_loadout_index];
+  for (var item_index = 0; item_index < items.length; item_index++) {
+    var item = items[item_index];
+    var item_state = item_states[item_index];
+    var loadout_count = loadout[item_index].count;
+
+    item_state.count = Math.max(item_state.count, loadout_count);
+  }
+  render();
+}
+
+function changeLoadoutItem(item_index, diff) {
+  const item = items[item_index];
+  const loadout = loadouts[current_loadout_index];
+  const loadout_count = loadout[item_index].count;
+  const new_count = loadout_count + diff;
+  if (new_count < 0) return;
+  if (new_count > item.max) return;
+  loadout[item_index].count = new_count;
+  console.log(item.name + " changed loadout count to " + new_count);
+  render();
+}
+
+function changeItem(item_index, diff) {
+  const item = items[item_index];
+  const state = item_states[item_index];
+  const new_count = state.count + diff;
+  if (new_count < item.free) return;
+  if (new_count > item.max) return;
+  state.count = new_count;
+  console.log(item.name + " changed count to " + new_count);
+  render();
+}
+
+function renderLoadout() {
+  var html = '';
+  var loadout = loadouts[current_loadout_index];
+
+  var total_cost = 0;
+  for (var item_index = 0; item_index < items.length; item_index++) {
+    var item = items[item_index];
+    var item_state = item_states[item_index];
+    var loadout_count = loadout[item_index].count;
+
+    html += '<div class="LoadoutItemRowDiv">';
+    html += '<span class="LoadoutItemPipsSpan">';
+
+    var row_cost = 0;
+    var pip_index = 0;
+    for (; pip_index < loadout_count; pip_index++) {
+      if (pip_index >= item_state.count) {
+        html += '<span class="ItemPipSpan Purple">X</span>';
+        row_cost += item.cost;
+      } else {
+        html += '<span class="ItemPipSpan Black">X</span>';
+      }
+    }
+    total_cost += row_cost;
+    for (; pip_index < item.max; pip_index++) {
+      html += '<span class="ItemPipSpan Gray">X</span>';
+    }
+
+    html += '<span class="LoadoutModifyButtonsSpan">';
+    var enabled_class = (loadout_count > 0) ? "Enabled" : "Disabled";
+    html +=   '<span class="ModifyButtonSpan ModifyButtonSpan' + enabled_class + '" onclick="changeLoadoutItem(' + item_index + ', -1)">-</span>';
+    var enabled_class = (loadout_count < item.max) ? "Enabled" : "Disabled";
+    html+=    '<span class="ModifyButtonSpan ModifyButtonSpan' + enabled_class + '" onclick="changeLoadoutItem(' + item_index + ', 1)">+</span>';
+    html += '</span>'; // LoadoutModifyButtonsSpan
+
+    html += '<span class="LoadoutRowCostSpan">$' + row_cost + '</span>';
+
+    html += '</span>'; // LoadoutItemPipsSpan
+    html += '</div>'; // LoadoutItemRowDiv
+  }
+  get("LoadoutTitleDiv").innerHTML = "Loadout " + (current_loadout_index + 1);
+  get("LoadoutItemDiv").innerHTML = html;
+  get("LoadoutCostAmountSpan").innerHTML = "$" + total_cost;
+
+  get("LoadoutColumnDiv").style.visibility = show_loadout ? "visible" : "hidden";
+  get("ShowLoadoutButton").style.display = show_loadout ? "none" : "block";
+}
+
+function render() {
+  var html = '';
+  var total_cost = 0;
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var state = item_states[i];
+    html += '<div class="CurrentItemRowDiv">';
+    const name_color_class = (state.count == 0 && item.free == 0) ? "Gray" : "Black";
+    html += '<span class="' + name_color_class +'">' + item.name + '</span>';
+    html += '<span class="CurrentItemPipsSpan">';
+    var row_cost = 0;
+    var pip_index = 0;
+    for (; pip_index < state.count; pip_index++) {
+      html += '<span class="ItemPipSpan Black">X</span>';
+      if (pip_index >= item.free) {
+       row_cost += item.cost;
+      }
+    }
+    total_cost += row_cost;
+    for (; pip_index < item.max; pip_index++) {
+      html += '<span class="ItemPipSpan Gray">X</span>';
+    }
+    html += '</span>'; // CurrentItemPipsSpan
+    html += '<span class="CurrentModifyButtonsSpan">';
+    var enabled_class = (state.count > item.free) ? "Enabled" : "Disabled";
+    html +=   '<span class="ModifyButtonSpan ModifyButtonSpan' + enabled_class + '" onclick="changeItem(' + i + ', -1)">-</span>';
+    var enabled_class = (state.count < item.max) ? "Enabled" : "Disabled";
+    html+=    '<span class="ModifyButtonSpan ModifyButtonSpan' + enabled_class + '" onclick="changeItem(' + i + ', 1)">+</span>';
+    html += '</span>'; // CurrentModifyButtonsSpan
+    html += '<span class="CurrentRowCostSpan">$' + row_cost + '</span>';
+    html += '</div>'; // CurrentItemRowDiv
+  }
+  get("EquipmentItemDiv").innerHTML = html;
+  var amount_class = (total_cost > player_money) ? "Red" : "";
+  get("MoneyAmountSpan").innerHTML = '$' + player_money;
+  get("CostAmountSpan").innerHTML = '<span class="' + amount_class + '">$' + total_cost + '</span>';
+  renderLoadout();
+}
+</script>
+</head><body onload="render()">
+<div id="EquipmentDiv">
+<h2>Equipment List</h2>
+<div id="EquipmentItemDiv">
+</div>
+<div id="PlayerMoneyAndCostDiv">
+  <div id="PlayerMoneyDiv">Money: <span id="MoneyAmountSpan"></span></div>
+  <div id="CostDiv">Cost: <span id="CostAmountSpan">$0</span></div>
+</div>
+</div>
+<div id="VertSepDiv"></div>
+<div id="LoadoutColumnDiv">
+  <div id="LoadoutTitleDiv"></div>
+  <button id="LoadoutNextButton" onclick="nextLoadout()">&gt;</button>
+  <div id="LoadoutItemDiv"></div>
+  <button id="AddLoadoutButton" onclick="addLoadout()">Add <span id="LoadoutCostAmountSpan"></span></button>
+</div>
+<button id="ShowLoadoutButton" onclick="showLoadout()">Show Loadout</button>
+</body></html>
