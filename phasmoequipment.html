@@ -6,7 +6,7 @@ body { background:#333; user-select: none;  font-size: 20px; }
 #EquipmentDiv {
   position:relative;
   width: 640px;
-  height: 500px;
+  height: 520px;
   background:#eaeaea;
 }
 #VertSepDiv {
@@ -14,7 +14,7 @@ body { background:#333; user-select: none;  font-size: 20px; }
     top:10px;
     left:410px;
     width:1px;
-    height:480px;
+    height:500px;
     background:#ccc;
 }
 
@@ -31,7 +31,7 @@ body { background:#333; user-select: none;  font-size: 20px; }
   top:0;
   left:410px;
   width:230px;
-  height:500px;
+  height:520px;
 }
 #ShowLoadoutButton {
   position:absolute;
@@ -65,8 +65,13 @@ body { background:#333; user-select: none;  font-size: 20px; }
   flex-direction: column;
   gap: 8px;
 }
+#AddRemoveAllDiv {
+  margin-top: 400px;
+  width: 410px;
+  text-align: right;
+}
 #PlayerMoneyAndCostDiv {
-  margin-top: 420px;
+  margin-top: 6px;
 }
 #PlayerMoneyDiv {
   position:absolute;
@@ -155,6 +160,7 @@ body { background:#333; user-select: none;  font-size: 20px; }
 .Purple { color:#5D3FD3}
 .Gray { color:#ccc }
 .Red { color:#f00 }
+button { background:#bea47a; padding: 3px 5px; margin: 3px 4px }
 </style>
 <script>
 function randRange(min, max) {
@@ -237,6 +243,21 @@ function changeItem(item_index, diff) {
   if (new_count > item.max) return;
   state.count = new_count;
   console.log(item.name + " changed count to " + new_count);
+  render();
+}
+
+function removeAll() {
+  for (var item_index = 0; item_index < items.length; item_index++) {
+    const item = items[item_index];
+    item_states[item_index].count = item.free;
+  }
+  render();
+}
+function addAll() {
+  for (var item_index = 0; item_index < items.length; item_index++) {
+    const item = items[item_index];
+    item_states[item_index].count = item.max;
+  }
   render();
 }
 
@@ -331,6 +352,10 @@ function render() {
 <div id="EquipmentDiv">
 <h2>Equipment List</h2>
 <div id="EquipmentItemDiv">
+</div>
+<div id="AddRemoveAllDiv">
+  <button onclick="removeAll()">Remove All</button>
+  <button onclick="addAll()">Add All</button>
 </div>
 <div id="PlayerMoneyAndCostDiv">
   <div id="PlayerMoneyDiv">Money: <span id="MoneyAmountSpan"></span></div>
